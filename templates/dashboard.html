@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <!-- Add your styles or link to a CSS file -->
+
+    <style>
+        /* Add your styles here */
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Admin Dashboard</h1>
+
+    {% if videos %}
+    <table>
+        <thead>
+            <tr>
+                <th>Video Name</th>
+                <th>Download Link</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for video in videos %}
+            <tr>
+                <td>{{ video.filename }}</td>
+                <td><a href="{{ url_for('download_video', filename=video.filename) }}">Download</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No processed videos available.</p>
+    {% endif %}
+
+    <!-- Add your scripts here -->
+    <script>
+        // Add your JavaScript code if needed
+    </script>
+</body>
+
+</html>

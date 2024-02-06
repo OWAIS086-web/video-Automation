@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Professional Video Processor Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css">
+  <!-- Add your custom styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='img/logo.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='img/profile.png') }}">
+
+  <style>
+    body {
+      font-family: 'Helvetica Neue', sans-serif; /* Example of a professional font */
+      background-color: #f8f9fa;
+      animation: fadeIn 1s; /* Animate.css fade in effect */
+    }
+
+    .container-fluid {
+      margin-top: 20px;
+    }
+
+    .dashboard-title {
+      font-size: 24px;
+      font-weight: bold;
+      animation: fadeInDown 1s; /* Animate.css fade in down effect */
+    }
+
+    .user-greeting {
+      display: flex;
+      align-items: center;
+      animation: fadeIn 1s; /* Animate.css fade in effect */
+    }
+
+    .user-greeting img {
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+
+    .upload-form {
+      border: 2px solid #007bff; /* Customize the border color */
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      animation: fadeIn 1s; /* Animate.css fade in effect */
+    }
+
+    .live-preview {
+      width: 100%;
+      max-width: 400px; /* Set a maximum width for both video and audio previews */
+      height: auto;
+      display: none;
+      border: 1px solid #ced4da;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      animation: fadeIn 1s;
+    }
+    .processed-videos-table th,
+    .processed-videos-table td {
+      text-align: center;
+    }
+
+    .download-btn {
+      background-color: #28a745; /* Customize the button color */
+      color: #fff; /* Customize the text color */
+      transition: background-color 0.3s ease; /* Smooth color transition on hover */
+    }
+
+    .download-btn:hover {
+      background-color: #218838; /* Darker color on hover */
+    }
+  </style>
+</head>
+<body>
+  <div class="text-center mt-4 mb-5">
+    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="img-fluid" style="width: auto; height: auto;">
+    <h1 class="dashboard-title animate__animated">Professional Video Processor Dashboard</h1>
+  </div>
+
+    <!-- User Greeting Section -->
+    <div class="row mb-4">
+      <div class="col-md-4">
+        <div class="card border-0 shadow rounded-3 p-3 animate__animated animate__fadeIn">
+          <div class="user-greeting">
+            <!-- Add user profile picture if applicable -->
+            <img src="{{ url_for('static', filename='img/profile.png') }}" alt="Profile" width="50" height="50">
+            {% if current_user.is_authenticated %}
+              <p class="mb-0">Hello, {{ current_user.username }}!</p>
+              <a href="{{ url_for('logout') }}" class="btn btn-primary btn-block mt-3">Logout</a>
+            {% else %}
+              <p class="mb-0">Hello, Guest!</p>
+              <p class="mb-3">Don't have an account?</p>
+              <a href="{{ url_for('signup') }}" class="btn btn-primary btn-block">Register here</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Upload Video Section -->
+      <div class="col-md-8">
+        <h2 class="mb-4">Upload Video</h2>
+        <form method="post" action="{{ url_for('upload') }}" enctype="multipart/form-data" class="upload-form animate__animated animate__fadeIn">
+          <div class="form-group">
+            <label for="video">Select Video:</label>
+            <input type="file" name="video" accept="video/*" class="form-control" required onchange="previewMedia('video', 'live-preview-video')" id="video">
+          </div>
+
+        
+
+          <!-- Live Preview Container -->
+          <div class="mb-3">
+            <label for="live-preview-video" class="form-label">Live Video Preview</label>
+            <video id="live-preview-video" class="live-preview" controls></video>
+          </div>
+
+         
+
+          
+
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="random_adjustments" id="randomAdjustments">
+            <label class="form-check-label" for="randomAdjustments">
+              Apply Random Adjustments
+            </label>
+          </div>          
+
+          <!-- Random Adjustments -->
+          <div id="randomAdjustmentsSection" style="display: none;">
+            <div class="form-group">
+              <label for="speed">Speed Factor:</label>
+              <input type="number" name="speed_factor" step="0.1" min="0.5" max="2.0" value="1.0" class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label for="audioVolume">Audio Volume:</label>
+              <input type="number" name="audio_volume" step="0.1" min="0.8" max="1.2" value="1.0" class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label for="brightnessFactor">Brightness Factor:</label>
+              <input type="number" name="brightness_factor" step="0.1" min="0.5" max="1.5" value="1.0" class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label for="scaleFactor">Scale Factor:</label>
+              <input type="number" name="scale_factor" step="0.1" min="0.5" max="1.5" value="1.0" class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label for="contrastFactor">Contrast Factor:</label>
+              <input type="number" name="contrast_factor" step="0.1" min="0.5" max="1.5" value="1.0" class="form-control">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">Process Video</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Processed Videos Section -->
+    <h2 class="mt-5">Processed Videos</h2>
+    <table class="table processed-videos-table animate__animated animate__fadeIn">
+      <thead>
+        <tr>
+          <th scope="col">Video Name</th>
+          <th scope="col">Upload Date</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Iterate over processed videos and populate the table -->
+        {% for video in processed_videos %}
+          <tr>
+            <td>{{ video.filename }}</td>
+            <td>{{ video.upload_date }}</td>
+            <td><a href="{{ url_for('download', filename=video.filename) }}" class="btn btn-success download-btn">Download</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    function previewMedia(inputType, previewId) {
+      var mediaInput = document.getElementsByName(inputType)[0];
+      var livePreview = document.getElementById(previewId);
+  
+      livePreview.style.display = 'block';
+  
+      if (inputType === 'video') {
+        livePreview.src = URL.createObjectURL(mediaInput.files[0]);
+      } else if (inputType === 'audio') {
+        var audio = document.getElementById(previewId);
+  
+        if (audio.canPlayType && audio.canPlayType('audio/*')) {
+          var file = mediaInput.files[0];
+          var reader = new FileReader();
+  
+          reader.onload = function (e) {
+            audio.src = e.target.result;
+          };
+  
+          reader.readAsDataURL(file);
+        } else {
+          console.error('This browser does not support audio playback.');
+        }
+      }
+    }
+
+    // Toggle visibility of random adjustments section
+    var randomAdjustmentsCheckbox = document.getElementById('randomAdjustments');
+    var randomAdjustmentsSection = document.getElementById('randomAdjustmentsSection');
+
+    randomAdjustmentsCheckbox.addEventListener('change', function () {
+      randomAdjustmentsSection.style.display = this.checked ? 'block' : 'none';
+    });
+
+    // JavaScript to dynamically change background images from Unsplash
+    var backgroundImages = [
+      ''
+      // Add more image URLs as needed
+    ];
+
+    var currentBackgroundIndex = 0;
+
+    function changeBackground() {
+      document.body.style.backgroundImage = backgroundImages[currentBackgroundIndex];
+      currentBackgroundIndex = (currentBackgroundIndex + 1) % backgroundImages.length;
+    }
+
+    setInterval(changeBackground, 10000); // Change background every 10 seconds (adjust as needed)
+  </script>
+</body>
+</html>
